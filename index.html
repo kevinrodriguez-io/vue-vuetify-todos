@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>TodoApp</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <link href='https://fonts.googleapis.com/css?family=Roboto:300,400,500,700|Material+Icons' rel="stylesheet">
+  <link href="https://unpkg.com/vuetify/dist/vuetify.min.css" rel="stylesheet">
+  <link href="./styles/style.css" rel="stylesheet">
+
+  <script src="./scripts/persistence.js"></script>
+  <script src="https://unpkg.com/vue"></script>
+  <script src="https://unpkg.com/vuetify/dist/vuetify.js"></script>
+
+</head>
+<body>
+
+  <div id="TodoApp" v-cloak>
+    <v-app>
+      <v-toolbar class="indigo" dark>
+        <v-toolbar-title>My todos</v-toolbar-title>
+      </v-toolbar>
+      <main>
+        <v-container fluid>
+
+          <v-layout row>
+            <v-flex xs12 sm10 offset-sm1 md4 offset-md4>
+              <v-card>
+                <v-card-title primary-title>
+                  <div class="headline">Todos</div>
+                </v-card-title>
+                <v-card-text>
+                  <v-layout grid>
+                      <v-text-field label="Title" v-model="newTodoTitle"></v-text-field>
+                      <v-btn v-on:click="addTodo" primary fab dark>
+                        <v-icon>add</v-icon>
+                      </v-btn>
+                  </v-layout>
+                </v-card-text>
+                <v-list v-if="todoCount > 0">
+                  <v-subheader>Current todos</v-subheader>
+                  <v-list-tile v-for="(todo, i) in todos" :key="i">
+                    <v-list-tile-action>
+                      <v-checkbox v-model="todo.done"></v-checkbox>
+                    </v-list-tile-action>
+                    <v-list-tile-content>
+                      <v-list-tile-title>{{todo.title}}</v-list-tile-title>
+                    </v-list-tile-content>
+                  </v-list-tile>
+                </v-list>
+                <v-card-text v-else>
+                    <span class="grey--text">There are no todos</span>
+                </v-card-text>
+              </v-card>
+            </v-flex>
+          </v-layout>
+          
+          <v-layout v-if="pendingCount > 0" row mt-3>
+            <v-flex xs12 sm10 offset-sm1 md4 offset-md4>
+              <v-card>
+                <v-card-title primary-title>
+                  <div class="headline">Pending todos</div>
+                </v-card-title>
+                <v-list>
+                  <v-list-tile v-for="(todo, i) in pending" :key="i">
+                    <v-list-tile-content>
+                      <v-list-tile-title>{{todo.title}}</v-list-tile-title>
+                    </v-list-tile-content>
+                  </v-list-tile>
+                </v-list>
+              </v-card>
+            </v-flex>
+          </v-layout>
+
+          <v-layout v-if="completedCount > 0" row mt-3>
+            <v-flex xs12 sm10 offset-sm1 md4 offset-md4>
+              <v-card>
+                <v-card-title primary-title>
+                  <div class="headline">Completed todos</div>
+                </v-card-title>
+                <v-list>
+                  <v-list-tile v-for="(todo, i) in completed" :key="i">
+                    <v-list-tile-action>
+                      <v-btn v-on:click="removeTodo(todo)" small error fab dark>
+                        <v-icon>remove</v-icon>
+                      </v-btn>
+                    </v-list-tile-action>
+                    <v-list-tile-content>
+                      <v-list-tile-title>{{todo.title}}</v-list-tile-title>
+                    </v-list-tile-content>
+                  </v-list-tile>
+                </v-list>
+                <v-card-actions>
+                    <v-spacer></v-spacer>
+                    <v-btn v-on:click="removeCompletedTodos" fab error dark>
+                      <v-icon>delete_forever</v-icon>
+                    </v-btn>
+                  </v-card-actions>
+              </v-card>
+            </v-flex>
+          </v-layout>
+        
+      </main>
+      <v-footer fixed>
+        <v-layout column align-center justify-center>
+          <v-flex xs12>
+            <div class="ml-3">
+              Made with
+              <v-icon class="red--text">favorite</v-icon>
+              by <a href="http://kevinrodriguez.io">kevinrodriguez.io</a>
+            </div>
+          </v-flex>
+        </v-layout>
+      </v-footer>
+      
+    </v-app>
+
+
+  </div>
+
+  <script type="text/javascript">
+    var app = new Vue({
+      el: '#TodoApp',
+      data: function () {
+        return {
+          newTodoTitle: '',
+          todos: []
+        }
+      },
+      beforeMount: function () {
+        this.todos = LocalStoragePersistence.loadJsonObject('TodoApp-Todos')
+      },
+      computed: {
+        todoCount: function () { 
+          return this.todos.length 
+        },
+        completed: function () { 
+          return this.todos.filter(function (todo) { 
+            return todo.done 
+          }) 
+        },
+        completedCount: function () { 
+          return this.completed.length 
+        },
+        pending: function () { 
+          return this.todos.filter(function (todo) { 
+            return !todo.done 
+          }) 
+        },
+        pendingCount: function () { 
+          return this.pending.length 
+        }
+      },
+      methods: {
+        addTodo: function () { 
+          this.todos.push({ title: this.newTodoTitle, done: false }) 
+          LocalStoragePersistence.saveJsonObject('TodoApp-Todos', this.todos)
+          this.newTodoTitle = ''
+        },
+        removeTodo: function (todo) { 
+          this.todos.splice(this.todos.indexOf(todo), 1) 
+          LocalStoragePersistence.saveJsonObject('TodoApp-Todos', this.todos)
+        },
+        removeCompletedTodos: function () {
+          this.completed.forEach(function(complete) {
+            this.removeTodo(complete)
+          }, this);
+        }
+      }
+    });
+  </script>
+</body>
+</html>

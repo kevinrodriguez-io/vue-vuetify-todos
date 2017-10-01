@@ -1,0 +1,10 @@
+.input-group__details:after {
+  background-color: rgba(255,255,255,0.32) !important;
+}
+.input-group--focused .input-group__append-icon {
+  color: inherit !important;
+}
+.input-group {
+  min-width: initial;
+}
+[v-cloak] { display:none; }
