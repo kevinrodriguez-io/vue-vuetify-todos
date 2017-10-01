@@ -120,6 +120,7 @@
   </div>
 
   <script type="text/javascript">
+    const TODO_PERSISTENCE_KEY = 'TodoApp-Todos'
     var app = new Vue({
       el: '#TodoApp',
       data: function () {
@@ -129,7 +130,8 @@
         }
       },
       beforeMount: function () {
-        this.todos = LocalStoragePersistence.loadJsonObject('TodoApp-Todos')
+        let todos = LocalStoragePersistence.loadJsonObject(TODO_PERSISTENCE_KEY)
+        this.todos = todos === null ? [] : todos 
       },
       computed: {
         todoCount: function () { 
@@ -155,12 +157,12 @@
       methods: {
         addTodo: function () { 
           this.todos.push({ title: this.newTodoTitle, done: false }) 
-          LocalStoragePersistence.saveJsonObject('TodoApp-Todos', this.todos)
+          LocalStoragePersistence.saveJsonObject(TODO_PERSISTENCE_KEY, this.todos)
           this.newTodoTitle = ''
         },
         removeTodo: function (todo) { 
           this.todos.splice(this.todos.indexOf(todo), 1) 
-          LocalStoragePersistence.saveJsonObject('TodoApp-Todos', this.todos)
+          LocalStoragePersistence.saveJsonObject(TODO_PERSISTENCE_KEY, this.todos)
         },
         removeCompletedTodos: function () {
           this.completed.forEach(function(complete) {
